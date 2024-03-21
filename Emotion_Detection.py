@@ -10,7 +10,6 @@ while(True):
   frame_gray =cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
   faces =face_classifier.detectMultiScale(frame_gray)
   response =DeepFace.analyze(frame, actions=("emotion"), enforce_detection=False)
-#   print("\n\nRsult",response, end='')
   for face in faces:
     x, y, w, h = face
     cv2.putText(frame, text=response[0].get('dominant_emotion'), org=(x, y), fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=1.0 , color=(0,255,0))
