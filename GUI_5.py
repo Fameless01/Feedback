@@ -16,6 +16,8 @@ ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 
 
+totalSatisfactionScore=0
+
 
 root = ctk.CTk()
 root.configure(bg="black")
@@ -76,12 +78,14 @@ def clearScreen():
             widget.destroy()
 
 def speakthanku():
+    global totalSatisfactionScore
     pygame.mixer.music.load(thankuFilePath)
     pygame.mixer.music.play()
     while pygame.mixer.music.get_busy():
         pygame.time.Clock().tick(5)
     
     print(feedback)
+    print("\n\nSatisfaction: ",str((totalSatisfactionScore*100)/10)+"%")
     os.abort()
 
 def thank():
@@ -91,6 +95,7 @@ def thank():
     threading.Thread(target=speakthanku).start()
 
 def speakquestion5():
+    global totalSatisfactionScore
     pygame.mixer.music.load(question6FilePath)
     pygame.mixer.music.play()
     while pygame.mixer.music.get_busy():
@@ -103,9 +108,11 @@ def speakquestion5():
     if response_type == "positive":
         print("User response: Positive")
         feedback.append(response_type)
+        totalSatisfactionScore+=3
     elif response_type == "negative":
         print("User response: Negative")
         feedback.append(response_type)
+        totalSatisfactionScore-=2
     else:
         print("Unable to determine user response. default response: ",spoken_response)
         feedback.append(spoken_response)
@@ -115,11 +122,13 @@ def speakquestion5():
 
 def question5():
     clearScreen()
+    print("Would you recommend today's meal to others? ")
     label2 = ctk.CTkLabel(root, text="Would you recommend today's meal to others? ", font=('default', 25, 'bold'), text_color="Lime")
     label2.pack(anchor='center', pady=(centerTextWidth, centerTextWidth))
     threading.Thread(target=speakquestion5).start()
 
 def speakquestion4():
+    global totalSatisfactionScore
     pygame.mixer.music.load(question4FilePath)
     pygame.mixer.music.play()
     while pygame.mixer.music.get_busy():
@@ -137,6 +146,7 @@ def speakquestion4():
     if satisfaction_level:
         print("User satisfaction level:", satisfaction_level)
         feedback.append(satisfaction_level)
+        totalSatisfactionScore+=(satisfaction_level/2)
     else:
         print("Unable to determine user satisfaction level.")
         threading.Thread(target=sorrySpeak, args='4',).start()
@@ -145,11 +155,13 @@ def speakquestion4():
 
 def question4():
     clearScreen()
+    print("On a scale from 1 to 10, how would you rate the taste and flavor of the meal?")
     label2 = ctk.CTkLabel(root, text="On a scale from 1 to 10, how would you rate the taste and flavor of the meal? ", font=('default', 25, 'bold'), text_color="Lime")
     label2.pack(anchor='center', pady=(centerTextWidth, centerTextWidth))
     threading.Thread(target=speakquestion4).start()
 
 def speakquestion3():
+    global totalSatisfactionScore
     pygame.mixer.music.load(question3FilePath)
     pygame.mixer.music.play()
     while pygame.mixer.music.get_busy():
@@ -169,10 +181,12 @@ def speakquestion3():
         if response_type == "positive":
             print("User response: Positive")
             feedback.append(response_type)
+            totalSatisfactionScore+=1
 
         elif response_type == "negative":
             print("User response: Negative")
             feedback.append(response_type)
+            totalSatisfactionScore-=1
             
         else:
             print("Unable to determine user response getting default result: ",spoken_response)
@@ -182,11 +196,13 @@ def speakquestion3():
 
 def question3():
     clearScreen()
+    print("Are you satisfied with the quantity of food provided? ")
     label2 = ctk.CTkLabel(root, text="Are you satisfied with the quantity of food provided? ", font=('default', 25, 'bold'), text_color="Lime")
     label2.pack(anchor='center', pady=(centerTextWidth, centerTextWidth))
     threading.Thread(target=speakquestion3).start()
 
 def speakquestion2():
+    global totalSatisfactionScore
     pygame.mixer.music.load(question2FilePath)
     pygame.mixer.music.play()
     while pygame.mixer.music.get_busy():
@@ -204,15 +220,18 @@ def speakquestion2():
     if food_names:
         enjoyedFood= ", ".join(food_names)
         feedback.append(enjoyedFood)
+        totalSatisfactionScore+=1
     
     else:
         print("No food mentioned.")
+        totalSatisfactionScore-=1
 
     
     question3()
 
 def question2():
     clearScreen()
+    print("What did you enjoy the most about today's meal?  ")
     label2 = ctk.CTkLabel(root, text="What did you enjoy the most about today's meal?  ", font=('default', 25, 'bold'), text_color="Lime")
     label2.pack(anchor='center', pady=(centerTextWidth, centerTextWidth))
     threading.Thread(target=speakquestion2).start()
@@ -242,6 +261,7 @@ def speakquestion1():
 
 def question1():
     clearScreen()
+    print("Hello sir, What is your name? ")
     label2 = ctk.CTkLabel(root, text="Hello sir, What is your name? ", font=('default', 25, 'bold'), text_color="Lime")
     label2.pack(anchor='center', pady=(centerTextWidth, centerTextWidth))
     threading.Thread(target=speakquestion1).start()
@@ -270,7 +290,21 @@ def sorrySpeak(callFun):
         return question5()
 
 def extract_food_names(text):
-    food_keywords = ["pizza", "burger", "sushi", "pasta", "salad", "steak", "sandwich", "soup", "taco", "burrito","rice","roti","chapati","bread","samosa","momos","momo","noddles","chiken","potato","dal","daal"]
+    food_keywords = [
+    "pizza", "burger", "sushi", "pasta", "salad", "steak", "sandwich", "soup", "taco", "burrito",
+    "rice", "roti", "chapati", "bread", "samosa", "momos", "momo", "noodles", "chicken", "potato",
+    "dal", "daal", "spaghetti", "lasagna", "fried chicken", "fish and chips", "hot dog", "grilled cheese",
+    "quesadilla", "nachos", "pad thai", "pho", "spring rolls", "dumplings", "curry", "kebabs", "biryani",
+    "shawarma", "falafel", "hummus", "pita bread", "tabbouleh", "goulash", "paella", "risotto", "polenta",
+    "bruschetta", "tiramisu", "cheesecake", "ice cream", "brownies", "cupcakes", "donuts", "waffles",
+    "pancakes", "crepes", "muffins", "bagels", "croissants", "biscuits", "granola", "oatmeal", "cereal",
+    "smoothie", "yogurt", "fruit salad", "caesar salad", "greek salad", "coleslaw", "mashed potatoes",
+    "french fries", "hash browns", "baked beans", "chili", "meatloaf", "lamb chops", "roast beef",
+    "barbecue ribs", "pork chops", "meatballs", "sushi roll", "sashimi", "tempura", "miso soup",
+    "teriyaki chicken", "fried rice", "stir fry", "egg roll", "beef stroganoff", "shepherd's pie",
+    "chicken tikka masala", "paneer butter masala", "chole bhature", "aloo gobi", "palak paneer",
+    "gulab jamun", "jalebi", "pecan pie", "apple pie", "chocolate cake"
+]
     text = text.lower()
     found_food = [food for food in food_keywords if food in text]
     return found_food
@@ -285,8 +319,36 @@ def extract_sentiment(text,funNo):
     
     else:
         text = text.lower()
-        positive_keywords = ["yes","indeed", "yup", "yeah", "sure", "absolutely", "definitely", "affirmative"]
-        negative_keywords = ["no", "nope", "nah", "negative", "not at all"]
+        positive_keywords = [
+    "yes", "indeed", "yup", "yeah", "sure", "absolutely", "definitely", "affirmative",
+    "certainly", "of course", "right", "positively", "naturally", "sure thing", "you bet",
+    "undoubtedly", "without a doubt", "for sure", "exactly", "true", "correct", "yep",
+    "roger that", "got it", "sounds good", "all right", "fine", "okay", "ok", "alright",
+    "agreed", "indeed", "totally", "aye", "very well", "gladly", "with pleasure", "by all means",
+    "good", "I agree", "I concur", "that's right", "affirmed", "that's correct", "you got it",
+    "affirmatively", "amen", "precisely", "right on", "so true", "just so", "amen to that",
+    "right you are", "that's so", "verily", "def", "surely", "indubitably", "unquestionably",
+    "decidedly", "beyond a doubt", "beyond question", "no doubt", "indeedy", "roger", "aye aye",
+    "yessir", "yes ma'am", "yup yup", "abso-freaking-lutely", "hell yes", "heck yeah", "you know it",
+    "all day", "affirmatory", "why not", "without question", "right away", "on it", "as you say",
+    "sure as shootin'", "damn straight", "betcha", "no problem", "for a fact", "for real",
+    "straight up", "righto", "you know", "uh-huh", "thumbs up", "yis", "yeppers", "yo",
+    "positive", "most definitely", "for certain", "agreed"
+]
+        negative_keywords = [
+    "no", "nope", "nah", "negative", "not at all", "never", "absolutely not", "definitely not",
+    "no way", "not really", "I don't think so", "not in a million years", "by no means", 
+    "certainly not", "under no circumstances", "no chance", "no way in hell", "nuh-uh", 
+    "nay", "nope nope", "not happening", "forget it", "nothing doing", "no sir", "no ma'am",
+    "not on your life", "out of the question", "no dice", "no thanks", "not gonna happen", 
+    "no can do", "not a chance", "never ever", "no siree", "nope never", "not ever", 
+    "not in this lifetime", "nope nope nope", "nope not at all", "hell no", "heck no", 
+    "not by a long shot", "no shot", "fat chance", "nope not really", "not by any means",
+    "nope not today", "nah not really", "nope not now", "definitely no", "absolutely no",
+    "never in a million years", "not under any circumstances", "not even close", "nope never ever",
+    "no way José", "nope no way", "nope not ever", "nope no how", "nope nuh-uh", "not a bit",
+    "nope not at all"
+]
         
         for keyword in positive_keywords:
             if keyword in text:
